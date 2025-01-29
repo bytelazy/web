@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>兔宝新年快乐v2</title>
+    <title>兔宝新年快乐v3</title>
     <style>
         * {
             margin: 0;
@@ -11,13 +11,14 @@
             box-sizing: border-box;
         }
         .bg-img {
-            position: fixed; /* 固定背景，不随滚动移动 */
+            position: fixed;
             top: 0;
             left: 0;
-            width: 100vw; /* 让图片宽度铺满屏幕 */
-            height: 100vh; /* 让图片高度铺满屏幕 */
-            object-fit: cover; /* 确保图片不会变形，并铺满整个屏幕 */
-            z-index: -1; /* 让图片作为背景，不挡住其他内容 */
+            width: 100vw;
+            height: 100vh;
+            object-fit: contain; /* 确保完整显示图片 */
+            z-index: -1;
+            background-color: black; /* 避免空白 */
         }
         body {
             margin-top: -50px; /* 负值让文本框向上移动 */
@@ -27,12 +28,12 @@
             align-items: center; /* 垂直居中 */
             text-align: center;
             color: white; /* 文字颜色 */
-            font-size: 22px; /* 文字大小 */
+            font-size: 20px; /* 文字大小 */
             font-weight: bold; /* 文字加粗 */
             background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
-            padding: 0 10%; /* 让整体内容离屏幕左右边远一点 */
+            padding: 0 12%; /* 让整体内容离屏幕左右边远一点 */
         }
         .text-box {
             color: rgb(229, 135, 13);

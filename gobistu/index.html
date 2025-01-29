@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>初始页面</title>
+</head>
+<body>
+    <table>
+        <tr>
+            <td>姓名：</td>
+            <td><input type="text" name="name" id="name" value="杨超越"></td>
+        </tr>
+        <tr>
+            <td>学号：</td>
+            <td><input type="text" name="stuNo" id="stuNo" value="2019011036"></td>
+            
+        </tr>
+        <tr>
+            <td> 辅导员姓名：</td>
+            <td><input type="text" name="instructor" id="instructor" value="黄旭"></td>
+           
+        </tr>
+        <tr>
+            <td>性别：</td>
+            <td>
+                <input type="radio" name="sex" value="男" />男
+                <input type="radio" name="sex" value="女" checked="checked" />女
+            </td>
+        </tr>
+        <tr>
+            <td>班级</td>
+            <td><input type="text" name="classNo" id="classNo" value="计科1903"></td>
+        </tr>
+      
+        
+    </table>
+    <a href="./goout.html" onclick="print()">点击跳转到出校申请界面</a>
+    <p>在输入框可填入自己的信息，如不填，则按照输入框中的信息生成出入校申请</p>
+</body>
+<script>
+   /*
+   读取输入内容
+   设置cookie
+   页面跳转
+   新页面读取cookie并打印到控制台
+   */
+    function print() {
+        var name = document.getElementById('name').value;
+        var stuNo = document.getElementById('stuNo').value
+        var instructor = document.getElementById('instructor').value;
+        var classNo = document.getElementById('classNo').value;
+        var sex = null;
+        var obj = document.getElementsByName("sex")
+        for (var i = 0; i < obj.length; i++) { //遍历Radio 
+            if (obj[i].checked) {
+                sex = obj[i].value;                   
+            }
+        }
+       setCookie('name', name,1);
+       setCookie('stuNo', stuNo,1);
+       setCookie('instructor', instructor,1);
+       setCookie('classNo', classNo, 1);
+       setCookie('sex', sex, 1);
+    
+
+    }
+
+    function setCookie(cname,cvalue,exdays)
+    {
+    var d = new Date();
+    d.setTime(d.getTime()+(exdays*24*60*60*1000));
+    var expires = "expires="+d.toGMTString();
+    document.cookie = cname + "=" + cvalue + "; " + expires;
+    }
+
+
+</script>
+</html>

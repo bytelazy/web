@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+  <h1>这里是首页</h1>
+  
+    <br>
+    <a href="./my-clash-rules.yaml">clash规则</a>
+    <br>
+
+    <br>
+    <a href="./ccc/index.html">ccc</a>
+    <br>
+
+    <br>
+    <a href="./lenrnlllee/index.html">ccc</a>
+    <br>
+
+    <a href="./44maker.netlify.appx/wiki/mac/index.html">44maker的mac配置教程</a>
+
+    <br>
+
+    <a href="./HelloKitty/index.html">HelloKitty</a>
+    
+
+</body>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+
+<script>
+  function jsonp (url){
+    return new Promise((resolve,reject)=>{
+        const random = 'functionXiaobangCall'+Math.random();
+        console.log(random);
+        window[random] = (data)=>{
+            console.log(data);
+            resolve(data);
+        }
+        const script = document.createElement("script");
+        script.src = `${url}?callback=${random}`;
+        script.onload = ()=>{
+            script.remove();
+        }
+        script.onerror = ()=>{
+            reject();
+        }
+        document.body.appendChild(script);
+    })
+}
+
+jsonp('https://github.com/beTaller99/testWebsite').then((data)=>{
+    console.log(data);
+})
+</script>
+</html>
+

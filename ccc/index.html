@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Huashu Search</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        #result {
+            margin-top: 20px;
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+<body>
+    <h1>Huashu Search</h1>
+    <input type="text" id="query" placeholder="Enter your search query">
+    <button onclick="search()">Search</button>
+    <div id="result"></div>
+
+    <script>
+        async function search() {
+            const query = document.getElementById('query').value;
+            const encryptedData = await generateEncryptedData(query);
+            // 网络请求的 referer header 不可设置。其格式固定为 https://servicewechat.com/{appid}/{version}/page-frame.html，其中 {appid} 为小程序的 appid，{version} 为小程序的版本号，版本号为 0 表示为开发版、体验版以及审核版本，版本号为 devtools 表示为开发者工具，其余为正式版本；
+            const response = await fetch('https://www.liaotianhuashu.cc/lahs/searchHuashu', {
+                method: 'POST',
+                headers: {
+                    'Host': 'www.liaotianhuashu.cc',
+                    'Connection': 'keep-alive',
+                    'xweb_xhr': '1',
+                    'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.0.0 Safari/537.36 MicroMessenger/6.8.0(0x16080000) NetType/WIFI MiniProgramEnv/Mac MacWechat/WMPF MacWechat/3.8.5(0x13080512)XWEB/1100',
+                    'Accept': '*/*',
+                    'Sec-Fetch-Site': 'cross-site',
+                    'Sec-Fetch-Mode': 'cors',
+                    'Sec-Fetch-Dest': 'empty',
+                    'Referer': 'https://servicewechat.com/wx253dea9fa116153d/5/page-frame.html',
+                    'Accept-Language': 'zh-CN,zh;q=0.9',
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: encryptedData
+            });
+
+            const encryptedResponseData = await response.text();
+            const decryptedData = await decryptAES(encryptedResponseData);
+            const jsonResponse = JSON.parse(decryptedData);
+
+            let resultHtml = '';
+            for (const huashu of jsonResponse.huashuList) {
+                resultHtml += `Chat Name: ${huashu.chat_name}\n`;
+                resultHtml += `Category Name: ${huashu.category_name}\n`;
+                for (const content of huashu.chat_content) {
+                    resultHtml += `Content: ${content.content}\n`;
+                }
+                resultHtml += '\n';
+            }
+
+            document.getElementById('result').textContent = resultHtml;
+        }
+
+        async function generateEncryptedData(query) {
+            const jsonTemplate = `{"query":"${query}","scroll":"","wordtype":"huashu","apptype":"weixin","nametype":"wx253dea9fa116153d","pinpaitype":"weixin","version":"a.7.0","platform":"mac","sextype":"nan","unionid":"ogl6A6aUni2BOaQ8uLz2mZjrZxWc"}`;
+            const key = 'dailidailidailil';
+            const iv = 'abcdef1234567890';
+
+            return encryptAES(jsonTemplate, key, iv);
+        }
+
+        function encryptAES(plainText, key, iv) {
+            const keyBytes = CryptoJS.enc.Utf8.parse(key);
+            const ivBytes = CryptoJS.enc.Utf8.parse(iv);
+
+            const encrypted = CryptoJS.AES.encrypt(plainText, keyBytes, {
+                iv: ivBytes,
+                mode: CryptoJS.mode.CBC,
+                padding: CryptoJS.pad.Pkcs7
+            });
+
+            return encrypted.ciphertext.toString(CryptoJS.enc.Hex);
+        }
+
+        function decryptAES(encryptedData) {
+            const key = 'dailidailidailil';
+            const iv = 'abcdef1234567890';
+
+            const keyBytes = CryptoJS.enc.Utf8.parse(key);
+            const ivBytes = CryptoJS.enc.Utf8.parse(iv);
+
+            const encryptedBytes = CryptoJS.enc.Base64.parse(encryptedData);
+
+            const decrypted = CryptoJS.AES.decrypt(
+                { ciphertext: encryptedBytes },
+                keyBytes,
+                {
+                    iv: ivBytes,
+                    mode: CryptoJS.mode.CBC,
+                    padding: CryptoJS.pad.Pkcs7
+                }
+            );
+
+            return decrypted.toString(CryptoJS.enc.Utf8);
+        }
+    </script>
+</body>
+</html>

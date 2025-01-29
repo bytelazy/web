@@ -10,8 +10,17 @@
             padding: 0;
             box-sizing: border-box;
         }
+        .bg-img {
+            position: fixed; /* 固定背景，不随滚动移动 */
+            top: 0;
+            left: 0;
+            width: 100vw; /* 让图片宽度铺满屏幕 */
+            height: 100vh; /* 让图片高度铺满屏幕 */
+            object-fit: cover; /* 确保图片不会变形，并铺满整个屏幕 */
+            z-index: -1; /* 让图片作为背景，不挡住其他内容 */
+        }
         body {
-            margin-top: -80px; /* 负值让文本框向上移动 */
+            margin-top: -50px; /* 负值让文本框向上移动 */
             height: 100vh; /* 让 body 充满整个视口 */
             display: flex;
             justify-content: center; /* 水平居中 */
@@ -20,7 +29,6 @@
             color: white; /* 文字颜色 */
             font-size: 22px; /* 文字大小 */
             font-weight: bold; /* 文字加粗 */
-            background-image: url('background.png'); /* 替换为你的图片 */
             background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
@@ -46,6 +54,8 @@
     </style>
 </head>
 <body>
+    <img src="background.png" alt="背景" class="bg-img">
+
     <div class="text-box">
         <div class="main_body">
             <p>To <img src="avatar.jpeg"> 兔宝:</p>

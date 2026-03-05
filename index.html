@@ -59,6 +59,41 @@
 jsonp('https://github.com/beTaller99/testWebsite').then((data)=>{
     console.log(data);
 })
+
+function getEntryNameFromHref(href) {
+    const path = href.split('#')[0].split('?')[0].replace(/^\.?\//, '');
+    const parts = path.split('/').filter(Boolean);
+    if (!parts.length) return '';
+    if (parts.length === 1) return parts[0];
+    const last = parts[parts.length - 1];
+    if (last.includes('.')) {
+        return parts[parts.length - 2] || parts[0];
+    }
+    return last;
+}
+
+function getExpectedPassword(href) {
+    const entryName = getEntryNameFromHref(href);
+    return entryName.slice(0, 5).toLowerCase();
+}
+
+document.querySelectorAll('a[href^="./"]').forEach((link) => {
+    link.addEventListener('click', (event) => {
+        const href = link.getAttribute('href') || '';
+        const expected = getExpectedPassword(href);
+        if (!expected) return;
+
+        event.preventDefault();
+        const userInput = window.prompt('请输入访问密码');
+        if (userInput === null) return;
+
+        if (userInput.trim().toLowerCase() === expected) {
+            window.location.href = href;
+            return;
+        }
+
+        window.alert('密码错误');
+    });
+});
 </script>
 </html>
-

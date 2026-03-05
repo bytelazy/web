@@ -80,6 +80,9 @@ function getExpectedPassword(href) {
 document.querySelectorAll('a[href^="./"]').forEach((link) => {
     link.addEventListener('click', (event) => {
         const href = link.getAttribute('href') || '';
+        if (href.startsWith('./natural-site/')) {
+            return;
+        }
         const expected = getExpectedPassword(href);
         if (!expected) return;
 

@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>音频上传与剪辑工具</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f4f7fb;
+      --panel: rgba(255, 255, 255, 0.88);
+      --primary: #2563eb;
+      --primary-dark: #1d4ed8;
+      --text: #0f172a;
+      --muted: #475569;
+      --line: #dbe4f0;
+      --danger: #dc2626;
+      --success: #0f766e;
+      --shadow: 0 20px 45px rgba(15, 23, 42, 0.12);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: "PingFang SC", "Microsoft YaHei", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(37, 99, 235, 0.14), transparent 32%),
+        radial-gradient(circle at top right, rgba(14, 165, 233, 0.12), transparent 25%),
+        var(--bg);
+      min-height: 100vh;
+    }
+
+    .page {
+      width: min(1120px, calc(100% - 32px));
+      margin: 32px auto 48px;
+      display: grid;
+      gap: 20px;
+    }
+
+    .hero,
+    .panel {
+      background: var(--panel);
+      border: 1px solid rgba(219, 228, 240, 0.9);
+      border-radius: 24px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(10px);
+    }
+
+    .hero {
+      padding: 28px;
+      display: grid;
+      gap: 14px;
+    }
+
+    .hero h1 {
+      margin: 0;
+      font-size: clamp(28px, 4vw, 42px);
+    }
+
+    .hero p,
+    .tips li,
+    .meta span,
+    .empty-state,
+    .status,
+    .field small,
+    .section-title p,
+    .time-row,
+    .download a {
+      color: var(--muted);
+    }
+
+    .hero p { margin: 0; line-height: 1.7; }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1.4fr 0.9fr;
+      gap: 20px;
+    }
+
+    .panel {
+      padding: 24px;
+    }
+
+    .section-title {
+      display: flex;
+      justify-content: space-between;
+      align-items: start;
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    .section-title h2,
+    .section-title h3 {
+      margin: 0 0 6px;
+    }
+
+    .field {
+      display: grid;
+      gap: 8px;
+      margin-bottom: 18px;
+    }
+
+    label {
+      font-weight: 600;
+      font-size: 14px;
+    }
+
+    input[type="file"],
+    input[type="number"],
+    input[type="range"] {
+      width: 100%;
+    }
+
+    input[type="file"],
+    input[type="number"] {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 12px 14px;
+      background: #fff;
+      font: inherit;
+    }
+
+    input[type="range"] {
+      accent-color: var(--primary);
+    }
+
+    .range-group {
+      display: grid;
+      gap: 12px;
+      margin-top: 16px;
+    }
+
+    .time-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 13px;
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 22px;
+    }
+
+    button,
+    .download a {
+      border: none;
+      border-radius: 999px;
+      padding: 12px 18px;
+      font: inherit;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+    }
+
+    button:hover,
+    .download a:hover {
+      transform: translateY(-1px);
+    }
+
+    .primary {
+      background: var(--primary);
+      color: #fff;
+      box-shadow: 0 14px 30px rgba(37, 99, 235, 0.22);
+    }
+
+    .primary:hover { background: var(--primary-dark); }
+
+    .secondary {
+      background: #fff;
+      color: var(--text);
+      border: 1px solid var(--line);
+    }
+
+    .danger {
+      background: rgba(220, 38, 38, 0.08);
+      color: var(--danger);
+      border: 1px solid rgba(220, 38, 38, 0.15);
+    }
+
+    button:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+
+    .meta {
+      display: grid;
+      gap: 12px;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      margin-top: 18px;
+    }
+
+    .meta-item {
+      padding: 14px;
+      border-radius: 18px;
+      background: rgba(248, 250, 252, 0.95);
+      border: 1px solid var(--line);
+      display: grid;
+      gap: 6px;
+    }
+
+    .meta-item strong,
+    .status strong {
+      font-size: 18px;
+      color: var(--text);
+    }
+
+    .status {
+      margin-top: 16px;
+      padding: 14px 16px;
+      border-radius: 16px;
+      background: rgba(248, 250, 252, 0.9);
+      border: 1px solid var(--line);
+      line-height: 1.6;
+    }
+
+    .status.success {
+      background: rgba(15, 118, 110, 0.09);
+      border-color: rgba(15, 118, 110, 0.18);
+      color: var(--success);
+    }
+
+    .wave-card {
+      border: 1px dashed var(--line);
+      border-radius: 20px;
+      padding: 18px;
+      background: rgba(255,255,255,0.75);
+    }
+
+    canvas {
+      width: 100%;
+      height: 240px;
+      display: block;
+      background: linear-gradient(180deg, #eff6ff 0%, #ffffff 100%);
+      border-radius: 18px;
+      border: 1px solid #cfe0ff;
+    }
+
+    .tips {
+      margin: 0;
+      padding-left: 20px;
+      line-height: 1.8;
+    }
+
+    .download {
+      margin-top: 16px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .download a {
+      background: rgba(37, 99, 235, 0.08);
+      color: var(--primary-dark);
+      border: 1px solid rgba(37, 99, 235, 0.18);
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 28px 10px 8px;
+      line-height: 1.8;
+    }
+
+    audio {
+      width: 100%;
+      margin-top: 18px;
+    }
+
+    @media (max-width: 880px) {
+      .grid { grid-template-columns: 1fr; }
+      .page { width: min(100% - 24px, 1120px); }
+      .panel, .hero { padding: 20px; }
+      canvas { height: 190px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <section class="hero">
+      <div class="section-title">
+        <div>
+          <h1>音频上传与剪辑工具</h1>
+          <p>上传本地音频后，可直接在浏览器中预览波形、设置开始/结束时间、试听片段，并导出剪好的 WAV 文件。适合做铃声、语音截取、短音效裁剪等轻量场景。</p>
+        </div>
+      </div>
+      <div class="meta">
+        <div class="meta-item"><span>处理方式</span><strong>本地浏览器</strong></div>
+        <div class="meta-item"><span>支持格式</span><strong>MP3 / WAV / M4A / OGG</strong></div>
+        <div class="meta-item"><span>导出格式</span><strong>WAV</strong></div>
+      </div>
+    </section>
+
+    <section class="grid">
+      <section class="panel">
+        <div class="section-title">
+          <div>
+            <h2>上传与剪辑</h2>
+            <p>先上传音频，再选择需要保留的时间范围。</p>
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="audioFile">选择音频文件</label>
+          <input id="audioFile" type="file" accept="audio/*">
+          <small>文件只在当前浏览器会话中处理，不会自动上传到服务器。</small>
+        </div>
+
+        <div class="wave-card">
+          <canvas id="waveform" width="900" height="240"></canvas>
+          <div id="emptyState" class="empty-state">上传音频后，这里会显示波形预览与剪辑范围。</div>
+          <div class="range-group">
+            <div>
+              <div class="time-row"><span>开始时间</span><strong id="startLabel">0.00s</strong></div>
+              <input id="startRange" type="range" min="0" max="0" step="0.01" value="0" disabled>
+            </div>
+            <div>
+              <div class="time-row"><span>结束时间</span><strong id="endLabel">0.00s</strong></div>
+              <input id="endRange" type="range" min="0" max="0" step="0.01" value="0" disabled>
+            </div>
+          </div>
+        </div>
+
+        <div class="actions">
+          <button class="primary" id="trimButton" disabled>导出剪辑片段</button>
+          <button class="secondary" id="previewButton" disabled>试听片段</button>
+          <button class="danger" id="resetButton" disabled>重置范围</button>
+        </div>
+
+        <audio id="audioPlayer" controls></audio>
+        <div id="status" class="status">请先上传一个音频文件。</div>
+        <div id="downloadArea" class="download"></div>
+      </section>
+
+      <aside class="panel">
+        <div class="section-title">
+          <div>
+            <h3>使用说明</h3>
+            <p>适合用作独立工具页，也方便继续扩展更多音频处理能力。</p>
+          </div>
+        </div>
+        <ol class="tips">
+          <li>点击“选择音频文件”上传本地音频，系统会自动解析并展示波形。</li>
+          <li>拖动开始/结束滑块，设定需要保留的片段范围。</li>
+          <li>点击“试听片段”可先预览当前裁剪结果。</li>
+          <li>点击“导出剪辑片段”后，会生成一个新的 WAV 下载链接。</li>
+          <li>如果要重新选择范围，可点击“重置范围”。</li>
+        </ol>
+
+        <div class="status" style="margin-top:20px;">
+          <strong>小提示：</strong><br>
+          为了兼容更多设备，导出统一采用 WAV；如果后续需要 MP3/AAC，可以再接入转码能力。
+        </div>
+      </aside>
+    </section>
+  </main>
+
+  <script>
+    const audioFileInput = document.getElementById('audioFile');
+    const audioPlayer = document.getElementById('audioPlayer');
+    const waveformCanvas = document.getElementById('waveform');
+    const emptyState = document.getElementById('emptyState');
+    const startRange = document.getElementById('startRange');
+    const endRange = document.getElementById('endRange');
+    const startLabel = document.getElementById('startLabel');
+    const endLabel = document.getElementById('endLabel');
+    const trimButton = document.getElementById('trimButton');
+    const previewButton = document.getElementById('previewButton');
+    const resetButton = document.getElementById('resetButton');
+    const statusBox = document.getElementById('status');
+    const downloadArea = document.getElementById('downloadArea');
+
+    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    let audioBuffer = null;
+    let sourceUrl = '';
+    let trimmedUrl = '';
+
+    function formatTime(seconds) {
+      if (!Number.isFinite(seconds)) return '0.00s';
+      return `${seconds.toFixed(2)}s`;
+    }
+
+    function setStatus(message, success = false) {
+      statusBox.textContent = message;
+      statusBox.classList.toggle('success', success);
+    }
+
+    function clearDownloadLink() {
+      if (trimmedUrl) {
+        URL.revokeObjectURL(trimmedUrl);
+        trimmedUrl = '';
+      }
+      downloadArea.innerHTML = '';
+    }
+
+    function updateLabels() {
+      startLabel.textContent = formatTime(Number(startRange.value));
+      endLabel.textContent = formatTime(Number(endRange.value));
+    }
+
+    function drawWaveform() {
+      const canvas = waveformCanvas;
+      const ctx = canvas.getContext('2d');
+      const width = canvas.width;
+      const height = canvas.height;
+
+      ctx.clearRect(0, 0, width, height);
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0, 0, width, height);
+
+      if (!audioBuffer) {
+        return;
+      }
+
+      const data = audioBuffer.getChannelData(0);
+      const step = Math.ceil(data.length / width);
+      const middle = height / 2;
+
+      ctx.strokeStyle = '#2563eb';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+
+      for (let i = 0; i < width; i++) {
+        let min = 1;
+        let max = -1;
+        const start = i * step;
+        const end = Math.min(start + step, data.length);
+        for (let j = start; j < end; j++) {
+          const value = data[j];
+          if (value < min) min = value;
+          if (value > max) max = value;
+        }
+        ctx.moveTo(i, middle + min * middle * 0.9);
+        ctx.lineTo(i, middle + max * middle * 0.9);
+      }
+      ctx.stroke();
+
+      const duration = audioBuffer.duration || 1;
+      const startX = (Number(startRange.value) / duration) * width;
+      const endX = (Number(endRange.value) / duration) * width;
+
+      ctx.fillStyle = 'rgba(37, 99, 235, 0.14)';
+      ctx.fillRect(startX, 0, Math.max(endX - startX, 0), height);
+
+      ctx.strokeStyle = '#1d4ed8';
+      ctx.lineWidth = 2;
+      [startX, endX].forEach((x) => {
+        ctx.beginPath();
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x, height);
+        ctx.stroke();
+      });
+    }
+
+    function syncRanges(changed) {
+      const start = Number(startRange.value);
+      const end = Number(endRange.value);
+      if (changed === 'start' && start > end) {
+        endRange.value = start;
+      }
+      if (changed === 'end' && end < start) {
+        startRange.value = end;
+      }
+      updateLabels();
+      drawWaveform();
+      clearDownloadLink();
+    }
+
+    function resetEditorState() {
+      audioBuffer = null;
+      startRange.disabled = true;
+      endRange.disabled = true;
+      trimButton.disabled = true;
+      previewButton.disabled = true;
+      resetButton.disabled = true;
+      startRange.value = 0;
+      endRange.value = 0;
+      startRange.max = 0;
+      endRange.max = 0;
+      updateLabels();
+      clearDownloadLink();
+      const ctx = waveformCanvas.getContext('2d');
+      ctx.clearRect(0, 0, waveformCanvas.width, waveformCanvas.height);
+      emptyState.style.display = 'block';
+    }
+
+    async function decodeFile(file) {
+      const arrayBuffer = await file.arrayBuffer();
+      return audioContext.decodeAudioData(arrayBuffer.slice(0));
+    }
+
+    function createTrimmedBuffer(startTime, endTime) {
+      const startOffset = Math.floor(startTime * audioBuffer.sampleRate);
+      const endOffset = Math.floor(endTime * audioBuffer.sampleRate);
+      const frameCount = Math.max(endOffset - startOffset, 1);
+      const trimmedBuffer = audioContext.createBuffer(
+        audioBuffer.numberOfChannels,
+        frameCount,
+        audioBuffer.sampleRate
+      );
+
+      for (let channel = 0; channel < audioBuffer.numberOfChannels; channel++) {
+        const sourceData = audioBuffer.getChannelData(channel).slice(startOffset, endOffset);
+        trimmedBuffer.copyToChannel(sourceData, channel, 0);
+      }
+      return trimmedBuffer;
+    }
+
+    function audioBufferToWav(buffer) {
+      const channels = buffer.numberOfChannels;
+      const sampleRate = buffer.sampleRate;
+      const samples = buffer.length;
+      const bytesPerSample = 2;
+      const blockAlign = channels * bytesPerSample;
+      const bufferLength = 44 + samples * blockAlign;
+      const arrayBuffer = new ArrayBuffer(bufferLength);
+      const view = new DataView(arrayBuffer);
+
+      let offset = 0;
+      const writeString = (text) => {
+        for (let i = 0; i < text.length; i++) {
+          view.setUint8(offset++, text.charCodeAt(i));
+        }
+      };
+
+      writeString('RIFF');
+      view.setUint32(offset, 36 + samples * blockAlign, true); offset += 4;
+      writeString('WAVE');
+      writeString('fmt ');
+      view.setUint32(offset, 16, true); offset += 4;
+      view.setUint16(offset, 1, true); offset += 2;
+      view.setUint16(offset, channels, true); offset += 2;
+      view.setUint32(offset, sampleRate, true); offset += 4;
+      view.setUint32(offset, sampleRate * blockAlign, true); offset += 4;
+      view.setUint16(offset, blockAlign, true); offset += 2;
+      view.setUint16(offset, 16, true); offset += 2;
+      writeString('data');
+      view.setUint32(offset, samples * blockAlign, true); offset += 4;
+
+      const channelData = [];
+      for (let channel = 0; channel < channels; channel++) {
+        channelData.push(buffer.getChannelData(channel));
+      }
+
+      for (let i = 0; i < samples; i++) {
+        for (let channel = 0; channel < channels; channel++) {
+          const sample = Math.max(-1, Math.min(1, channelData[channel][i] || 0));
+          view.setInt16(offset, sample < 0 ? sample * 0x8000 : sample * 0x7FFF, true);
+          offset += 2;
+        }
+      }
+
+      return new Blob([arrayBuffer], { type: 'audio/wav' });
+    }
+
+    async function handleFileChange(event) {
+      const [file] = event.target.files || [];
+      clearDownloadLink();
+
+      if (!file) {
+        resetEditorState();
+        setStatus('未选择文件。');
+        return;
+      }
+
+      try {
+        setStatus('正在解析音频，请稍候...');
+        if (sourceUrl) {
+          URL.revokeObjectURL(sourceUrl);
+        }
+        sourceUrl = URL.createObjectURL(file);
+        audioPlayer.src = sourceUrl;
+
+        audioBuffer = await decodeFile(file);
+        const duration = audioBuffer.duration;
+        startRange.disabled = false;
+        endRange.disabled = false;
+        trimButton.disabled = false;
+        previewButton.disabled = false;
+        resetButton.disabled = false;
+        startRange.max = duration;
+        endRange.max = duration;
+        startRange.value = 0;
+        endRange.value = duration;
+        updateLabels();
+        emptyState.style.display = 'none';
+        drawWaveform();
+        setStatus(`已加载：${file.name}，总时长 ${formatTime(duration)}。现在可以设置剪辑范围。`, true);
+      } catch (error) {
+        console.error(error);
+        resetEditorState();
+        setStatus('音频解析失败，请尝试更换文件格式或使用更小的文件。');
+      }
+    }
+
+    async function previewTrimmedAudio() {
+      if (!audioBuffer) return;
+      if (audioContext.state === 'suspended') {
+        await audioContext.resume();
+      }
+      const start = Number(startRange.value);
+      const end = Number(endRange.value);
+      const duration = Math.max(end - start, 0);
+      if (duration <= 0) {
+        setStatus('结束时间必须大于开始时间。');
+        return;
+      }
+      audioPlayer.currentTime = start;
+      audioPlayer.play();
+      setStatus(`正在试听 ${formatTime(start)} - ${formatTime(end)} 的片段。`, true);
+      window.clearTimeout(previewTrimmedAudio.timer);
+      previewTrimmedAudio.timer = window.setTimeout(() => {
+        audioPlayer.pause();
+      }, duration * 1000);
+    }
+
+    function exportTrimmedAudio() {
+      if (!audioBuffer) return;
+      const start = Number(startRange.value);
+      const end = Number(endRange.value);
+      if (end <= start) {
+        setStatus('结束时间必须大于开始时间。');
+        return;
+      }
+
+      const trimmedBuffer = createTrimmedBuffer(start, end);
+      const wavBlob = audioBufferToWav(trimmedBuffer);
+      clearDownloadLink();
+      trimmedUrl = URL.createObjectURL(wavBlob);
+
+      const link = document.createElement('a');
+      link.href = trimmedUrl;
+      link.download = `trimmed-${Date.now()}.wav`;
+      link.textContent = '下载剪辑后的 WAV 文件';
+      downloadArea.appendChild(link);
+      setStatus(`剪辑完成：已生成 ${formatTime(end - start)} 的音频片段。`, true);
+    }
+
+    function resetRanges() {
+      if (!audioBuffer) return;
+      startRange.value = 0;
+      endRange.value = audioBuffer.duration;
+      updateLabels();
+      drawWaveform();
+      clearDownloadLink();
+      setStatus('剪辑范围已重置为整段音频。', true);
+    }
+
+    audioFileInput.addEventListener('change', handleFileChange);
+    startRange.addEventListener('input', () => syncRanges('start'));
+    endRange.addEventListener('input', () => syncRanges('end'));
+    trimButton.addEventListener('click', exportTrimmedAudio);
+    previewButton.addEventListener('click', previewTrimmedAudio);
+    resetButton.addEventListener('click', resetRanges);
+
+    resetEditorState();
+  </script>
+</body>
+</html>

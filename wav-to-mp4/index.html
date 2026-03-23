@@ -333,10 +333,8 @@
             updateStatus('正在加载转换组件，请稍候…');
             setProgress(5);
 
-            const baseURL = 'https://cdn.jsdelivr.net/npm/@ffmpeg/core@0.12.10/dist/esm';
-            const classWorkerURL = new URL('./ffmpeg/worker.js', window.location.href).href;
+            const baseURL = 'https://cdn.jsdelivr.net/npm/@ffmpeg/core@0.12.6/dist/esm';
             await ffmpeg.load({
-                classWorkerURL,
                 coreURL: await toBlobURL(`${baseURL}/ffmpeg-core.js`, 'text/javascript'),
                 wasmURL: await toBlobURL(`${baseURL}/ffmpeg-core.wasm`, 'application/wasm')
             });

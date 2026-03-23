@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WAV 转 MP4</title>
+    <style>
+        :root {
+            color-scheme: light dark;
+            --bg: #0f172a;
+            --panel: rgba(15, 23, 42, 0.82);
+            --card: rgba(30, 41, 59, 0.9);
+            --text: #e2e8f0;
+            --muted: #94a3b8;
+            --accent: #38bdf8;
+            --accent-strong: #0ea5e9;
+            --border: rgba(148, 163, 184, 0.2);
+            --success: #22c55e;
+            --danger: #f87171;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            font-family: "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+            background:
+                radial-gradient(circle at top, rgba(56, 189, 248, 0.15), transparent 35%),
+                linear-gradient(180deg, #020617 0%, #111827 100%);
+            color: var(--text);
+        }
+
+        .container {
+            width: min(960px, calc(100% - 32px));
+            margin: 0 auto;
+            padding: 40px 0 56px;
+        }
+
+        .hero,
+        .panel {
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            backdrop-filter: blur(16px);
+            box-shadow: 0 24px 80px rgba(15, 23, 42, 0.35);
+        }
+
+        .hero {
+            padding: 32px;
+            margin-bottom: 24px;
+        }
+
+        h1 {
+            margin: 0 0 12px;
+            font-size: clamp(2rem, 4vw, 3.2rem);
+        }
+
+        p {
+            line-height: 1.7;
+            color: var(--muted);
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+        }
+
+        .panel {
+            padding: 24px;
+        }
+
+        .card {
+            padding: 18px;
+            border-radius: 18px;
+            background: var(--card);
+            border: 1px solid rgba(148, 163, 184, 0.12);
+            margin-bottom: 16px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 700;
+        }
+
+        input[type="file"],
+        input[type="text"],
+        input[type="color"] {
+            width: 100%;
+            padding: 12px 14px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            background: rgba(15, 23, 42, 0.72);
+            color: var(--text);
+        }
+
+        input[type="color"] {
+            min-height: 48px;
+            padding: 6px;
+        }
+
+        .inline-fields {
+            display: grid;
+            grid-template-columns: 1fr 120px;
+            gap: 12px;
+        }
+
+        button,
+        .link-button {
+            appearance: none;
+            border: 0;
+            border-radius: 999px;
+            padding: 12px 18px;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform 0.2s ease, opacity 0.2s ease, background 0.2s ease;
+            text-decoration: none;
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+        }
+
+        button:hover,
+        .link-button:hover {
+            transform: translateY(-1px);
+        }
+
+        button:disabled {
+            opacity: 0.55;
+            cursor: wait;
+            transform: none;
+        }
+
+        .primary {
+            background: linear-gradient(135deg, var(--accent), var(--accent-strong));
+            color: white;
+            width: 100%;
+        }
+
+        .secondary {
+            background: transparent;
+            color: var(--text);
+            border: 1px solid var(--border);
+        }
+
+        .actions {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+
+        .progress-shell {
+            width: 100%;
+            height: 12px;
+            background: rgba(148, 163, 184, 0.15);
+            border-radius: 999px;
+            overflow: hidden;
+            margin: 12px 0;
+        }
+
+        .progress-bar {
+            width: 0%;
+            height: 100%;
+            background: linear-gradient(90deg, #22d3ee, #38bdf8);
+            transition: width 0.2s ease;
+        }
+
+        .status {
+            min-height: 24px;
+            font-size: 0.95rem;
+        }
+
+        .status.error { color: var(--danger); }
+        .status.success { color: var(--success); }
+
+        .tips {
+            margin: 0;
+            padding-left: 20px;
+            color: var(--muted);
+            line-height: 1.8;
+        }
+
+        video {
+            width: 100%;
+            border-radius: 18px;
+            background: #000;
+            margin-top: 12px;
+        }
+
+        .muted {
+            color: var(--muted);
+            font-size: 0.92rem;
+        }
+
+        @media (max-width: 640px) {
+            .container { width: min(100% - 24px, 960px); padding-top: 24px; }
+            .hero, .panel { border-radius: 20px; }
+            .hero { padding: 24px; }
+            .panel { padding: 18px; }
+            .inline-fields { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <main class="container">
+        <section class="hero">
+            <a class="link-button secondary" href="../index.html">← 返回首页</a>
+            <h1>WAV 转 MP4</h1>
+            <p>
+                这个页面会在浏览器里把 WAV 音频打包成 MP4 视频：你可以上传一段 WAV，
+                再选择封面图；如果不上传封面图，页面会自动生成纯色背景视频。转换过程在本地完成，生成后可直接预览和下载。
+            </p>
+        </section>
+
+        <section class="grid">
+            <div class="panel">
+                <div class="card">
+                    <label for="wavFile">1. 选择 WAV 文件</label>
+                    <input id="wavFile" type="file" accept=".wav,audio/wav" />
+                </div>
+
+                <div class="card">
+                    <label for="coverFile">2. 可选：上传封面图</label>
+                    <input id="coverFile" type="file" accept="image/png,image/jpeg,image/webp" />
+                    <p class="muted">支持 PNG、JPG、WEBP。如果不上传，将使用下方纯色背景。</p>
+                </div>
+
+                <div class="card">
+                    <label>3. 输出选项</label>
+                    <div class="inline-fields">
+                        <input id="outputName" type="text" value="converted-video" maxlength="60" placeholder="输出文件名" />
+                        <input id="bgColor" type="color" value="#111827" aria-label="纯色背景" />
+                    </div>
+                    <p class="muted">输出格式固定为 MP4，编码为 H.264 视频 + AAC 音频，兼容性较好。</p>
+                </div>
+
+                <button id="convertButton" class="primary" type="button">开始转换</button>
+
+                <div class="actions">
+                    <button id="resetButton" class="secondary" type="button">重置</button>
+                    <a id="downloadLink" class="link-button secondary" href="#" download hidden>下载 MP4</a>
+                </div>
+            </div>
+
+            <div class="panel">
+                <h2>转换进度</h2>
+                <div class="progress-shell" aria-hidden="true">
+                    <div id="progressBar" class="progress-bar"></div>
+                </div>
+                <div id="statusText" class="status">等待上传文件。</div>
+
+                <div class="card">
+                    <strong>预览</strong>
+                    <video id="preview" controls playsinline hidden></video>
+                </div>
+
+                <div class="card">
+                    <strong>使用说明</strong>
+                    <ul class="tips">
+                        <li>首次转换会加载 FFmpeg 浏览器组件，可能需要几十秒，请耐心等待。</li>
+                        <li>如果 WAV 文件较大，建议保持页面前台运行，避免浏览器中断任务。</li>
+                        <li>若上传封面图，导出视频会使用该图片作为静态画面；否则使用纯色背景。</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script type="module">
+        import { FFmpeg } from 'https://cdn.jsdelivr.net/npm/@ffmpeg/ffmpeg@0.12.10/+esm';
+        import { fetchFile, toBlobURL } from 'https://cdn.jsdelivr.net/npm/@ffmpeg/util@0.12.1/+esm';
+
+        const wavInput = document.getElementById('wavFile');
+        const coverInput = document.getElementById('coverFile');
+        const outputNameInput = document.getElementById('outputName');
+        const bgColorInput = document.getElementById('bgColor');
+        const convertButton = document.getElementById('convertButton');
+        const resetButton = document.getElementById('resetButton');
+        const downloadLink = document.getElementById('downloadLink');
+        const progressBar = document.getElementById('progressBar');
+        const statusText = document.getElementById('statusText');
+        const preview = document.getElementById('preview');
+
+        const ffmpeg = new FFmpeg();
+        let ffmpegLoaded = false;
+        let outputUrl = '';
+
+        function updateStatus(message, type = '') {
+            statusText.textContent = message;
+            statusText.className = `status ${type}`.trim();
+        }
+
+        function setProgress(value) {
+            const percent = Math.max(0, Math.min(100, value));
+            progressBar.style.width = `${percent}%`;
+        }
+
+        function normalizeHexColor(hex) {
+            return hex.replace('#', '') || '111827';
+        }
+
+        function sanitizeFileName(value) {
+            const cleaned = value.trim().replace(/[^a-zA-Z0-9-_\u4e00-\u9fa5]+/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '');
+            return cleaned || 'converted-video';
+        }
+
+        async function getAudioDuration(file) {
+            const audio = document.createElement('audio');
+            const url = URL.createObjectURL(file);
+            audio.preload = 'metadata';
+
+            try {
+                const duration = await new Promise((resolve, reject) => {
+                    audio.onloadedmetadata = () => resolve(audio.duration);
+                    audio.onerror = () => reject(new Error('无法读取音频时长。'));
+                    audio.src = url;
+                });
+                return Number.isFinite(duration) && duration > 0 ? duration : 1;
+            } finally {
+                URL.revokeObjectURL(url);
+            }
+        }
+
+        async function ensureFFmpegLoaded() {
+            if (ffmpegLoaded) return;
+
+            updateStatus('正在加载转换组件，请稍候…');
+            setProgress(5);
+
+            const baseURL = 'https://cdn.jsdelivr.net/npm/@ffmpeg/core@0.12.10/dist/esm';
+            const classWorkerURL = new URL('./ffmpeg/worker.js', window.location.href).href;
+            await ffmpeg.load({
+                classWorkerURL,
+                coreURL: await toBlobURL(`${baseURL}/ffmpeg-core.js`, 'text/javascript'),
+                wasmURL: await toBlobURL(`${baseURL}/ffmpeg-core.wasm`, 'application/wasm')
+            });
+
+            ffmpeg.on('progress', ({ progress }) => {
+                setProgress(Math.round(progress * 100));
+            });
+
+            ffmpegLoaded = true;
+            updateStatus('转换组件已就绪。', 'success');
+        }
+
+        async function convert() {
+            const wavFile = wavInput.files?.[0];
+            const coverFile = coverInput.files?.[0];
+
+            if (!wavFile) {
+                updateStatus('请先选择一个 WAV 文件。', 'error');
+                return;
+            }
+
+            if (!/\.wav$/i.test(wavFile.name) && wavFile.type !== 'audio/wav' && wavFile.type !== 'audio/x-wav') {
+                updateStatus('当前仅支持 WAV 文件。', 'error');
+                return;
+            }
+
+            convertButton.disabled = true;
+            downloadLink.hidden = true;
+            preview.hidden = true;
+            setProgress(0);
+
+            if (outputUrl) {
+                URL.revokeObjectURL(outputUrl);
+                outputUrl = '';
+            }
+
+            try {
+                await ensureFFmpegLoaded();
+
+                const duration = await getAudioDuration(wavFile);
+                const outputName = `${sanitizeFileName(outputNameInput.value)}.mp4`;
+                const audioInputName = 'input.wav';
+                const outputFileName = 'output.mp4';
+
+                updateStatus('正在写入音频文件…');
+                await ffmpeg.writeFile(audioInputName, await fetchFile(wavFile));
+
+                let args = [];
+                if (coverFile) {
+                    const coverExt = coverFile.name.split('.').pop()?.toLowerCase() || 'png';
+                    const coverName = `cover.${coverExt}`;
+                    updateStatus('正在写入封面图片…');
+                    await ffmpeg.writeFile(coverName, await fetchFile(coverFile));
+                    args = [
+                        '-loop', '1',
+                        '-i', coverName,
+                        '-i', audioInputName,
+                        '-c:v', 'libx264',
+                        '-tune', 'stillimage',
+                        '-c:a', 'aac',
+                        '-b:a', '192k',
+                        '-pix_fmt', 'yuv420p',
+                        '-shortest',
+                        '-vf', 'scale=1280:720:force_original_aspect_ratio=decrease,pad=1280:720:(ow-iw)/2:(oh-ih)/2:color=black',
+                        outputFileName
+                    ];
+                } else {
+                    const safeDuration = Math.max(1, Math.ceil(duration));
+                    const background = normalizeHexColor(bgColorInput.value);
+                    args = [
+                        '-f', 'lavfi',
+                        '-i', `color=c=0x${background}:s=1280x720:d=${safeDuration}`,
+                        '-i', audioInputName,
+                        '-c:v', 'libx264',
+                        '-pix_fmt', 'yuv420p',
+                        '-c:a', 'aac',
+                        '-b:a', '192k',
+                        '-shortest',
+                        outputFileName
+                    ];
+                }
+
+                updateStatus('正在转换，请保持页面开启…');
+                await ffmpeg.exec(args);
+
+                const data = await ffmpeg.readFile(outputFileName);
+                const blob = new Blob([data.buffer], { type: 'video/mp4' });
+                outputUrl = URL.createObjectURL(blob);
+
+                preview.src = outputUrl;
+                preview.hidden = false;
+                downloadLink.href = outputUrl;
+                downloadLink.download = outputName;
+                downloadLink.hidden = false;
+
+                setProgress(100);
+                updateStatus('转换完成，可以预览或下载 MP4 文件。', 'success');
+
+                await ffmpeg.deleteFile(audioInputName).catch(() => {});
+                await ffmpeg.deleteFile(outputFileName).catch(() => {});
+            } catch (error) {
+                console.error(error);
+                updateStatus(error instanceof Error ? error.message : '转换失败，请重试。', 'error');
+            } finally {
+                convertButton.disabled = false;
+            }
+        }
+
+        function resetPage() {
+            wavInput.value = '';
+            coverInput.value = '';
+            outputNameInput.value = 'converted-video';
+            bgColorInput.value = '#111827';
+            setProgress(0);
+            updateStatus('已重置，可重新上传文件。');
+            preview.pause();
+            preview.removeAttribute('src');
+            preview.load();
+            preview.hidden = true;
+            downloadLink.hidden = true;
+            downloadLink.removeAttribute('href');
+            if (outputUrl) {
+                URL.revokeObjectURL(outputUrl);
+                outputUrl = '';
+            }
+        }
+
+        convertButton.addEventListener('click', convert);
+        resetButton.addEventListener('click', resetPage);
+    </script>
+</body>
+</html>

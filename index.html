@@ -1,876 +1,109 @@
-<!doctype html>
-<html lang="zh-CN">
+<!DOCTYPE html>
+<html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>在线工具</title>
-  <style>
-    :root {
-      --bg: linear-gradient(135deg, #eef7ff 0%, #fff7ea 100%);
-      --panel: #ffffff;
-      --text: #1f2937;
-      --muted: #5b6472;
-      --line: #d9e1ea;
-      --primary: #0b6bcb;
-      --primary-strong: #0a4f95;
-      --success: #118a48;
-      --danger: #cc2f2f;
-      --shadow: 0 10px 30px rgba(18, 57, 94, 0.08);
-    }
-
-    * {
-      box-sizing: border-box;
-    }
-
-    body {
-      margin: 0;
-      min-height: 100vh;
-      font-family: "Avenir Next", "PingFang SC", "Microsoft YaHei", sans-serif;
-      color: var(--text);
-      background: var(--bg);
-    }
-
-    .wrap {
-      width: min(1200px, 94vw);
-      margin: 24px auto 36px;
-      display: grid;
-      gap: 16px;
-    }
-
-    .card {
-      background: var(--panel);
-      border: 1px solid var(--line);
-      border-radius: 14px;
-      box-shadow: var(--shadow);
-      overflow: hidden;
-    }
-
-    .head {
-      padding: 14px 16px;
-      border-bottom: 1px solid var(--line);
-      background: linear-gradient(90deg, #f8fbff 0%, #fffbf5 100%);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-    }
-
-    .title {
-      font-size: 18px;
-      font-weight: 700;
-      letter-spacing: 0.2px;
-    }
-
-    .status {
-      font-size: 13px;
-      color: var(--muted);
-    }
-
-    .tools {
-      padding: 14px 16px;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      border-bottom: 1px solid var(--line);
-    }
-
-    textarea {
-      width: 100%;
-      min-height: 240px;
-      border: 1px solid var(--line);
-      border-radius: 10px;
-      padding: 12px;
-      resize: vertical;
-      font-size: 14px;
-      line-height: 1.5;
-      font-family: "Menlo", "Consolas", monospace;
-      color: #0f172a;
-      outline: none;
-    }
-
-    textarea:focus {
-      border-color: #90b8e5;
-      box-shadow: 0 0 0 3px rgba(11, 107, 203, 0.12);
-    }
-
-    .input-area {
-      padding: 16px;
-    }
-
-    .btn {
-      border: 1px solid transparent;
-      border-radius: 9px;
-      padding: 8px 14px;
-      font-size: 14px;
-      cursor: pointer;
-      transition: all 0.2s ease;
-      user-select: none;
-    }
-
-    .btn:disabled {
-      opacity: 0.6;
-      cursor: not-allowed;
-    }
-
-    .btn-primary {
-      color: #fff;
-      background: var(--primary);
-    }
-
-    .btn-primary:hover {
-      background: var(--primary-strong);
-    }
-
-    .btn-light {
-      color: var(--text);
-      border-color: var(--line);
-      background: #fff;
-    }
-
-    .btn-light:hover {
-      background: #f9fbfd;
-      border-color: #c7d5e5;
-    }
-
-    .tip {
-      padding: 0 16px 14px;
-      color: var(--muted);
-      font-size: 13px;
-    }
-
-    .tip.error {
-      color: var(--danger);
-      font-weight: 600;
-    }
-
-    .table-wrap {
-      overflow: auto;
-      max-height: 58vh;
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 14px;
-    }
-
-    thead th {
-      position: sticky;
-      top: 0;
-      z-index: 1;
-      background: #f3f8ff;
-      font-weight: 700;
-    }
-
-    th,
-    td {
-      border: 1px solid var(--line);
-      padding: 8px 10px;
-      text-align: left;
-      vertical-align: top;
-      white-space: pre-wrap;
-      word-break: break-word;
-      max-width: 360px;
-    }
-
-    tbody tr:nth-child(even) {
-      background: #fbfdff;
-    }
-
-    .empty {
-      padding: 22px 16px;
-      color: var(--muted);
-      font-size: 14px;
-    }
-
-    .split-grid {
-      padding: 16px;
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-      gap: 16px;
-    }
-
-    .stack {
-      display: grid;
-      gap: 12px;
-      min-width: 0;
-    }
-
-    .file-picker {
-      padding: 14px 16px;
-      border: 1px dashed #bdd2ea;
-      border-radius: 12px;
-      background: linear-gradient(180deg, #f7fbff 0%, #fffdf8 100%);
-      display: grid;
-      gap: 10px;
-    }
-
-    .picker-title {
-      font-size: 15px;
-      font-weight: 700;
-    }
-
-    .picker-hint,
-    .meta-bar {
-      font-size: 13px;
-      color: var(--muted);
-    }
-
-    .meta-bar {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-    }
-
-    input[type="file"] {
-      width: 100%;
-      font-size: 14px;
-      color: var(--text);
-    }
-
-    .output-area {
-      min-height: 320px;
-      background: #fbfdff;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
 </head>
 <body>
-  <div class="wrap">
-    <section class="card">
-      <div class="head">
-        <div class="title">JSON 转表格</div>
-        <div id="status" class="status">未解析</div>
-      </div>
-      <div class="tools">
-        <button id="parseBtn" class="btn btn-primary">解析 JSON</button>
-        <button id="copyBtn" class="btn btn-light">复制表格</button>
-        <button id="downloadBtn" class="btn btn-light">下载 CSV</button>
-        <button id="clearBtn" class="btn btn-light">清空</button>
-      </div>
-      <div class="input-area">
-        <textarea id="jsonInput" placeholder='粘贴 JSON，例如：[{"name":"alice","age":20},{"name":"bob","age":21}]'></textarea>
-      </div>
-      <div id="msg" class="tip">支持数组、对象。对象里若包含数组字段（如 data/list/items/result）会优先使用该数组。</div>
-    </section>
+  <h1>这里是首页</h1>
+  
+    <br>
+    <a href="./my-clash-rules.yaml">clash规则</a>
+    <br>
 
-    <section class="card">
-      <div class="head">
-        <div class="title">表格预览</div>
-        <div id="tableMeta" class="status">0 行 / 0 列</div>
-      </div>
-      <div id="tableBox" class="table-wrap">
-        <div class="empty">暂无数据</div>
-      </div>
-    </section>
+    <br>
+    <a href="./ccc/index.html">ccc</a>
+    <br>
 
-    <section class="card">
-      <div class="head">
-        <div class="title">PDF 转 Markdown</div>
-        <div id="pdfStatus" class="status">未选择文件</div>
-      </div>
-      <div class="tools">
-        <button id="convertPdfBtn" class="btn btn-primary">转换 PDF</button>
-        <button id="copyMarkdownBtn" class="btn btn-light">复制 Markdown</button>
-        <button id="downloadMarkdownBtn" class="btn btn-light">下载 .md</button>
-        <button id="clearPdfBtn" class="btn btn-light">清空</button>
-      </div>
-      <div class="split-grid">
-        <div class="stack">
-          <label class="file-picker">
-            <div class="picker-title">选择本地 PDF 文件</div>
-            <div class="picker-hint">文件不会上传。首次使用需要联网加载 PDF.js 解析库。</div>
-            <input id="pdfInput" type="file" accept=".pdf,application/pdf" />
-          </label>
-          <div id="pdfMsg" class="tip">适合文本型 PDF。扫描件、图片内容、复杂表格和多栏排版无法完整还原，会尽量按段落整理成 Markdown。</div>
-        </div>
-        <div class="stack">
-          <div class="meta-bar">
-            <span>Markdown 输出</span>
-            <span id="markdownMeta">0 页 / 0 字</span>
-          </div>
-          <textarea id="markdownOutput" class="output-area" placeholder="转换后的 Markdown 会显示在这里" readonly></textarea>
-        </div>
-      </div>
-    </section>
-  </div>
+    <br>
+    <a href="./lenrnlllee/index.html">ccc</a>
+    <br>
 
-  <script>
-    const jsonInput = document.getElementById("jsonInput");
-    const parseBtn = document.getElementById("parseBtn");
-    const copyBtn = document.getElementById("copyBtn");
-    const downloadBtn = document.getElementById("downloadBtn");
-    const clearBtn = document.getElementById("clearBtn");
-    const statusEl = document.getElementById("status");
-    const msgEl = document.getElementById("msg");
-    const tableBox = document.getElementById("tableBox");
-    const tableMeta = document.getElementById("tableMeta");
-    const pdfInput = document.getElementById("pdfInput");
-    const convertPdfBtn = document.getElementById("convertPdfBtn");
-    const copyMarkdownBtn = document.getElementById("copyMarkdownBtn");
-    const downloadMarkdownBtn = document.getElementById("downloadMarkdownBtn");
-    const clearPdfBtn = document.getElementById("clearPdfBtn");
-    const pdfStatusEl = document.getElementById("pdfStatus");
-    const pdfMsgEl = document.getElementById("pdfMsg");
-    const markdownOutput = document.getElementById("markdownOutput");
-    const markdownMeta = document.getElementById("markdownMeta");
+    <a href="./44maker.netlify.appx/wiki/mac/index.html">44maker的mac配置教程</a>
 
-    let rows = [];
-    let columns = [];
-    let markdownText = "";
-    let pdfJsReadyPromise = null;
+    <br>
 
-    const PDF_JS_CDN = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js";
-    const PDF_JS_WORKER_CDN = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+    <a href="./HelloKitty/index.html">HelloKitty</a>
+    
 
-    function setMessage(text, isError = false) {
-      msgEl.textContent = text;
-      if (isError) {
-        msgEl.classList.add("error");
-      } else {
-        msgEl.classList.remove("error");
-      }
-    }
 
-    function setPdfMessage(text, isError = false) {
-      pdfMsgEl.textContent = text;
-      if (isError) {
-        pdfMsgEl.classList.add("error");
-      } else {
-        pdfMsgEl.classList.remove("error");
-      }
-    }
+    <br>
 
-    function updateMarkdownOutput(text, pageCount = 0) {
-      markdownText = text;
-      markdownOutput.value = text;
-      markdownMeta.textContent = `${pageCount} 页 / ${text.length} 字`;
-    }
+    <a href="./natural-site/index.html">natural-site（天赋自测）</a>
 
-    function formatValue(value) {
-      if (value === null || value === undefined) return "";
-      if (typeof value === "object") {
-        try {
-          return JSON.stringify(value);
-        } catch (_) {
-          return String(value);
+
+    <br>
+
+
+    <a href="./audio-trim-tool/index.html">audio-trim-tool+音频上传与剪辑工具</a>
+
+    </body>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+
+<script>
+  function jsonp (url){
+    return new Promise((resolve,reject)=>{
+        const random = 'functionXiaobangCall'+Math.random();
+        console.log(random);
+        window[random] = (data)=>{
+            console.log(data);
+            resolve(data);
         }
-      }
-      return String(value);
-    }
-
-    function flattenObject(source, prefix = "", target = {}) {
-      if (source === null || source === undefined) return target;
-      for (const [key, value] of Object.entries(source)) {
-        const fullKey = prefix ? `${prefix}.${key}` : key;
-        if (value && typeof value === "object" && !Array.isArray(value)) {
-          flattenObject(value, fullKey, target);
-        } else {
-          target[fullKey] = value;
-        }
-      }
-      return target;
-    }
-
-    function pickRows(input) {
-      if (Array.isArray(input)) return input;
-      if (input && typeof input === "object") {
-        const candidates = ["data", "list", "items", "result"];
-        for (const key of candidates) {
-          if (Array.isArray(input[key])) return input[key];
-        }
-        for (const value of Object.values(input)) {
-          if (Array.isArray(value)) return value;
-        }
-        return [input];
-      }
-      return [input];
-    }
-
-    function normalizeRows(rawRows) {
-      return rawRows.map((item) => {
-        if (item && typeof item === "object" && !Array.isArray(item)) {
-          return flattenObject(item);
-        }
-        return { value: item };
-      });
-    }
-
-    function buildColumns(dataRows) {
-      const set = new Set();
-      dataRows.forEach((row) => Object.keys(row).forEach((k) => set.add(k)));
-      return Array.from(set);
-    }
-
-    function renderTable() {
-      if (!rows.length || !columns.length) {
-        tableBox.innerHTML = '<div class="empty">暂无数据</div>';
-        tableMeta.textContent = "0 行 / 0 列";
-        return;
-      }
-
-      const table = document.createElement("table");
-      const thead = document.createElement("thead");
-      const headTr = document.createElement("tr");
-      columns.forEach((col) => {
-        const th = document.createElement("th");
-        th.textContent = col;
-        headTr.appendChild(th);
-      });
-      thead.appendChild(headTr);
-
-      const tbody = document.createElement("tbody");
-      rows.forEach((row) => {
-        const tr = document.createElement("tr");
-        columns.forEach((col) => {
-          const td = document.createElement("td");
-          td.textContent = formatValue(row[col]);
-          tr.appendChild(td);
-        });
-        tbody.appendChild(tr);
-      });
-
-      table.appendChild(thead);
-      table.appendChild(tbody);
-      tableBox.innerHTML = "";
-      tableBox.appendChild(table);
-      tableMeta.textContent = `${rows.length} 行 / ${columns.length} 列`;
-    }
-
-    function parseJsonAndRender() {
-      const text = jsonInput.value.trim();
-      if (!text) {
-        rows = [];
-        columns = [];
-        renderTable();
-        statusEl.textContent = "未解析";
-        setMessage("请输入 JSON");
-        return;
-      }
-      try {
-        const parsed = JSON.parse(text);
-        const picked = pickRows(parsed);
-        rows = normalizeRows(picked);
-        columns = buildColumns(rows);
-        renderTable();
-        statusEl.textContent = "解析成功";
-        setMessage("解析完成，可复制或下载表格");
-      } catch (err) {
-        rows = [];
-        columns = [];
-        renderTable();
-        statusEl.textContent = "解析失败";
-        setMessage(`JSON 解析失败：${err.message}`, true);
-      }
-    }
-
-    function toTsv() {
-      if (!rows.length || !columns.length) return "";
-      const lines = [];
-      lines.push(columns.join("\t"));
-      rows.forEach((row) => {
-        const line = columns.map((col) => formatValue(row[col]).replace(/\t/g, " ")).join("\t");
-        lines.push(line);
-      });
-      return lines.join("\n");
-    }
-
-    function loadScript(src) {
-      return new Promise((resolve, reject) => {
-        const existing = document.querySelector(`script[data-src="${src}"]`);
-        if (existing) {
-          existing.addEventListener("load", resolve, { once: true });
-          existing.addEventListener("error", () => reject(new Error("脚本加载失败")), { once: true });
-          if (existing.dataset.loaded === "true") resolve();
-          return;
-        }
-
         const script = document.createElement("script");
-        script.src = src;
-        script.async = true;
-        script.dataset.src = src;
-        script.onload = () => {
-          script.dataset.loaded = "true";
-          resolve();
-        };
-        script.onerror = () => reject(new Error("脚本加载失败"));
-        document.head.appendChild(script);
-      });
-    }
-
-    async function ensurePdfJs() {
-      if (window.pdfjsLib) {
-        window.pdfjsLib.GlobalWorkerOptions.workerSrc = PDF_JS_WORKER_CDN;
-        return window.pdfjsLib;
-      }
-      if (!pdfJsReadyPromise) {
-        pdfJsReadyPromise = loadScript(PDF_JS_CDN).then(() => {
-          if (!window.pdfjsLib) {
-            throw new Error("PDF.js 未成功初始化");
-          }
-          window.pdfjsLib.GlobalWorkerOptions.workerSrc = PDF_JS_WORKER_CDN;
-          return window.pdfjsLib;
-        });
-      }
-      return pdfJsReadyPromise;
-    }
-
-    function median(values) {
-      if (!values.length) return 0;
-      const sorted = [...values].sort((a, b) => a - b);
-      const middle = Math.floor(sorted.length / 2);
-      if (sorted.length % 2 === 0) {
-        return (sorted[middle - 1] + sorted[middle]) / 2;
-      }
-      return sorted[middle];
-    }
-
-    function cleanupPdfText(text) {
-      return text
-        .replace(/\u00a0/g, " ")
-        .replace(/[ \t]+/g, " ")
-        .replace(/\s+([,.;:!?])/g, "$1")
-        .trim();
-    }
-
-    function joinInlineText(current, next) {
-      if (!current) return next;
-      if (!next) return current;
-      if (/[-\u2010\u2011]$/.test(current)) return `${current}${next}`;
-      if (/[\u4e00-\u9fff]$/.test(current) || /^[\u4e00-\u9fff]/.test(next)) {
-        return `${current}${next}`;
-      }
-      return `${current} ${next}`;
-    }
-
-    function normalizeListLine(text) {
-      let match = text.match(/^[•▪◦·●▪■□▸▹►▻◆◇]\s*(.+)$/);
-      if (match) return `- ${match[1].trim()}`;
-
-      match = text.match(/^(\d+)[\.\)\]）]\s*(.+)$/);
-      if (match) return `${match[1]}. ${match[2].trim()}`;
-
-      match = text.match(/^([A-Za-z])[.\)\]]\s*(.+)$/);
-      if (match) return `- ${match[1]}. ${match[2].trim()}`;
-
-      match = text.match(/^([一二三四五六七八九十]+)[、.]\s*(.+)$/);
-      if (match) return `- ${match[1]}、${match[2].trim()}`;
-
-      return "";
-    }
-
-    function getHeadingLevel(line, baselineFont) {
-      const text = line.text;
-      if (!text || text.length > 80) return 0;
-      if (/^\d+$/.test(text)) return 0;
-      if (/^第\s*\d+\s*页$/.test(text)) return 0;
-
-      const ratio = baselineFont ? line.fontSize / baselineFont : 1;
-      const headingPattern = /^(\d+(\.\d+)*|[一二三四五六七八九十]+)[、.．)\]]?\s*\S+/;
-      if (ratio >= 1.7) return 1;
-      if (ratio >= 1.45) return 2;
-      if (ratio >= 1.25) return 3;
-      if (headingPattern.test(text) && ratio >= 1.05) return 3;
-      return 0;
-    }
-
-    function isNoiseLine(text, lineIndex, totalLines) {
-      if (!text) return true;
-      if (lineIndex >= totalLines - 2 && (/^\d+$/.test(text) || /^第\s*\d+\s*页$/.test(text))) {
-        return true;
-      }
-      return false;
-    }
-
-    function groupTextLines(items) {
-      const positionedItems = items
-        .map((item) => {
-          const text = cleanupPdfText(item.str || "");
-          const width = Number(item.width || 0);
-          const x = Number(item.transform?.[4] || 0);
-          const y = Number(item.transform?.[5] || 0);
-          const fontSize = Math.abs(Number(item.height || item.transform?.[0] || item.transform?.[3] || 0));
-          return {
-            text,
-            width,
-            x,
-            y,
-            fontSize: fontSize || 12
-          };
-        })
-        .filter((item) => item.text);
-
-      positionedItems.sort((a, b) => {
-        if (Math.abs(b.y - a.y) > 2) return b.y - a.y;
-        return a.x - b.x;
-      });
-
-      const lines = [];
-      positionedItems.forEach((item) => {
-        const lastLine = lines[lines.length - 1];
-        const threshold = Math.max(2.5, item.fontSize * 0.3);
-        if (!lastLine || Math.abs(lastLine.y - item.y) > threshold) {
-          lines.push({ y: item.y, items: [item] });
-          return;
+        script.src = `${url}?callback=${random}`;
+        script.onload = ()=>{
+            script.remove();
         }
-        lastLine.items.push(item);
-      });
+        script.onerror = ()=>{
+            reject();
+        }
+        document.body.appendChild(script);
+    })
+}
 
-      return lines.map((line) => {
-        const sortedItems = line.items.sort((a, b) => a.x - b.x);
-        let text = "";
-        let previousRight = null;
-        const fontSizes = [];
+jsonp('https://github.com/beTaller99/testWebsite').then((data)=>{
+    console.log(data);
+})
 
-        sortedItems.forEach((item) => {
-          if (previousRight !== null) {
-            const gap = item.x - previousRight;
-            if (gap > Math.max(8, item.fontSize * 0.45)) {
-              text += " ";
-            }
-          }
-          text += item.text;
-          previousRight = item.x + item.width;
-          fontSizes.push(item.fontSize);
-        });
-
-        return {
-          y: line.y,
-          text: cleanupPdfText(text),
-          fontSize: median(fontSizes) || 12
-        };
-      });
+function getEntryNameFromHref(href) {
+    const path = href.split('#')[0].split('?')[0].replace(/^\.?\//, '');
+    const parts = path.split('/').filter(Boolean);
+    if (!parts.length) return '';
+    if (parts.length === 1) return parts[0];
+    const last = parts[parts.length - 1];
+    if (last.includes('.')) {
+        return parts[parts.length - 2] || parts[0];
     }
+    return last;
+}
 
-    async function extractMarkdownFromPage(page) {
-      const textContent = await page.getTextContent();
-      const lines = groupTextLines(textContent.items);
-      if (!lines.length) return "";
+function getExpectedPassword(href) {
+    const entryName = getEntryNameFromHref(href);
+    return entryName.slice(0, 5).toLowerCase();
+}
 
-      const baselineFont = median(lines.map((line) => line.fontSize)) || 12;
-      const lineGaps = [];
-      for (let index = 0; index < lines.length - 1; index += 1) {
-        const gap = lines[index].y - lines[index + 1].y;
-        if (gap > 0.5) lineGaps.push(gap);
-      }
-      const baselineGap = median(lineGaps) || 16;
+document.querySelectorAll('a[href^="./"]').forEach((link) => {
+    link.addEventListener('click', (event) => {
+        const href = link.getAttribute('href') || '';
+        if (href.startsWith('./natural-site/')) {
+            return;
+        }
+        const expected = getExpectedPassword(href);
+        if (!expected) return;
 
-      const blocks = [];
-      let paragraph = "";
+        event.preventDefault();
+        const userInput = window.prompt('请输入访问密码');
+        if (userInput === null) return;
 
-      const flushParagraph = () => {
-        const trimmed = paragraph.trim();
-        if (trimmed) blocks.push(trimmed);
-        paragraph = "";
-      };
-
-      lines.forEach((line, index) => {
-        const text = cleanupPdfText(line.text);
-        if (isNoiseLine(text, index, lines.length)) return;
-
-        const headingLevel = getHeadingLevel(line, baselineFont);
-        const listLine = normalizeListLine(text);
-        const nextGap = index < lines.length - 1 ? line.y - lines[index + 1].y : baselineGap * 2;
-        const shouldBreakParagraph = nextGap > baselineGap * 1.5;
-
-        if (headingLevel) {
-          flushParagraph();
-          blocks.push(`${"#".repeat(headingLevel)} ${text}`);
-          return;
+        if (userInput.trim().toLowerCase() === expected) {
+            window.location.href = href;
+            return;
         }
 
-        if (listLine) {
-          flushParagraph();
-          blocks.push(listLine);
-          return;
-        }
-
-        paragraph = joinInlineText(paragraph, text);
-        if (shouldBreakParagraph) {
-          flushParagraph();
-        }
-      });
-
-      flushParagraph();
-      return blocks.join("\n\n");
-    }
-
-    function getPdfFileLabel(file) {
-      if (!file) return "未选择文件";
-      const size = file.size > 1024 * 1024
-        ? `${(file.size / 1024 / 1024).toFixed(2)} MB`
-        : `${Math.max(1, Math.round(file.size / 1024))} KB`;
-      return `${file.name} · ${size}`;
-    }
-
-    function sanitizeFileName(name) {
-      const baseName = (name || "document").replace(/\.[^.]+$/, "");
-      return (baseName.replace(/[^\w\u4e00-\u9fff-]+/g, "-").replace(/-+/g, "-").replace(/^-|-$/g, "") || "document");
-    }
-
-    function toCsv() {
-      if (!rows.length || !columns.length) return "";
-      const escapeCsv = (val) => {
-        const text = formatValue(val);
-        return `"${text.replace(/"/g, '""')}"`;
-      };
-      const lines = [];
-      lines.push(columns.map(escapeCsv).join(","));
-      rows.forEach((row) => {
-        lines.push(columns.map((col) => escapeCsv(row[col])).join(","));
-      });
-      return lines.join("\n");
-    }
-
-    async function copyTable() {
-      const tsv = toTsv();
-      if (!tsv) {
-        setMessage("没有可复制的数据", true);
-        return;
-      }
-      try {
-        await navigator.clipboard.writeText(tsv);
-        setMessage("已复制为制表符格式（可直接粘贴到 Excel）");
-      } catch (_) {
-        const temp = document.createElement("textarea");
-        temp.value = tsv;
-        document.body.appendChild(temp);
-        temp.select();
-        document.execCommand("copy");
-        document.body.removeChild(temp);
-        setMessage("已复制为制表符格式（可直接粘贴到 Excel）");
-      }
-    }
-
-    async function copyMarkdown() {
-      if (!markdownText) {
-        setPdfMessage("没有可复制的 Markdown", true);
-        return;
-      }
-      try {
-        await navigator.clipboard.writeText(markdownText);
-      } catch (_) {
-        markdownOutput.removeAttribute("readonly");
-        markdownOutput.select();
-        document.execCommand("copy");
-        markdownOutput.setAttribute("readonly", "readonly");
-      }
-      setPdfMessage("Markdown 已复制");
-    }
-
-    function downloadCsv() {
-      const csv = toCsv();
-      if (!csv) {
-        setMessage("没有可下载的数据", true);
-        return;
-      }
-      const blob = new Blob(["\ufeff" + csv], { type: "text/csv;charset=utf-8;" });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      const stamp = new Date().toISOString().replace(/:/g, "-").slice(0, 19);
-      a.href = url;
-      a.download = `table-${stamp}.csv`;
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      URL.revokeObjectURL(url);
-      setMessage("CSV 已下载");
-    }
-
-    function downloadMarkdown() {
-      if (!markdownText) {
-        setPdfMessage("没有可下载的 Markdown", true);
-        return;
-      }
-      const blob = new Blob([markdownText], { type: "text/markdown;charset=utf-8" });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `${sanitizeFileName(pdfInput.files?.[0]?.name)}.md`;
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      URL.revokeObjectURL(url);
-      setPdfMessage("Markdown 已下载");
-    }
-
-    async function convertPdfToMarkdown() {
-      const file = pdfInput.files?.[0];
-      if (!file) {
-        setPdfMessage("请先选择 PDF 文件", true);
-        pdfStatusEl.textContent = "未选择文件";
-        return;
-      }
-
-      convertPdfBtn.disabled = true;
-      pdfStatusEl.textContent = "转换中...";
-      setPdfMessage("正在读取并解析 PDF，请稍候");
-
-      try {
-        const pdfjsLib = await ensurePdfJs();
-        const pdf = await pdfjsLib.getDocument({ data: await file.arrayBuffer() }).promise;
-        const pages = [];
-
-        for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber += 1) {
-          const page = await pdf.getPage(pageNumber);
-          const pageMarkdown = await extractMarkdownFromPage(page);
-          if (pageMarkdown) pages.push(pageMarkdown);
-        }
-
-        const result = pages.join("\n\n---\n\n").trim();
-        updateMarkdownOutput(result, pdf.numPages);
-        pdfStatusEl.textContent = `转换成功 · ${pdf.numPages} 页`;
-        if (result) {
-          setPdfMessage("PDF 已转换为 Markdown，可复制或下载");
-        } else {
-          setPdfMessage("PDF 已读取，但未提取到可用文本。若是扫描件，需要 OCR 工具。", true);
-        }
-      } catch (err) {
-        updateMarkdownOutput("", 0);
-        pdfStatusEl.textContent = "转换失败";
-        setPdfMessage(`PDF 转换失败：${err.message}`, true);
-      } finally {
-        convertPdfBtn.disabled = false;
-      }
-    }
-
-    parseBtn.addEventListener("click", parseJsonAndRender);
-    copyBtn.addEventListener("click", copyTable);
-    downloadBtn.addEventListener("click", downloadCsv);
-    clearBtn.addEventListener("click", () => {
-      jsonInput.value = "";
-      rows = [];
-      columns = [];
-      renderTable();
-      statusEl.textContent = "未解析";
-      setMessage("请输入 JSON");
+        window.alert('密码错误');
     });
-    convertPdfBtn.addEventListener("click", convertPdfToMarkdown);
-    copyMarkdownBtn.addEventListener("click", copyMarkdown);
-    downloadMarkdownBtn.addEventListener("click", downloadMarkdown);
-    clearPdfBtn.addEventListener("click", () => {
-      pdfInput.value = "";
-      updateMarkdownOutput("", 0);
-      pdfStatusEl.textContent = "未选择文件";
-      setPdfMessage("请选择 PDF 文件");
-    });
-
-    pdfInput.addEventListener("change", () => {
-      const file = pdfInput.files?.[0];
-      pdfStatusEl.textContent = getPdfFileLabel(file);
-      updateMarkdownOutput("", 0);
-      if (file) {
-        setPdfMessage("文件已选择，点击“转换 PDF”开始处理");
-      } else {
-        setPdfMessage("请选择 PDF 文件");
-      }
-    });
-
-    jsonInput.addEventListener("keydown", (e) => {
-      if ((e.ctrlKey || e.metaKey) && e.key === "Enter") {
-        parseJsonAndRender();
-      }
-    });
-  </script>
-</body>
+});
+</script>
 </html>

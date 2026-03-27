@@ -236,11 +236,23 @@
   </style>
 </head>
 <body>
-  <h1>这里是首页</h1>
-
-    <br>
-    <a href="./my-clash-rules.yaml">clash规则</a>
-    <br>
+  <div class="wrap">
+    <section class="card">
+      <div class="head">
+        <div class="title">JSON 转表格</div>
+        <div id="status" class="status">未解析</div>
+      </div>
+      <div class="tools">
+        <button id="parseBtn" class="btn btn-primary">解析 JSON</button>
+        <button id="copyBtn" class="btn btn-light">复制表格</button>
+        <button id="downloadBtn" class="btn btn-light">下载 CSV</button>
+        <button id="clearBtn" class="btn btn-light">清空</button>
+      </div>
+      <div class="input-area">
+        <textarea id="jsonInput" placeholder='粘贴 JSON，例如：[{"name":"alice","age":20},{"name":"bob","age":21}]'></textarea>
+      </div>
+      <div id="msg" class="tip">支持数组、对象。对象里若包含数组字段（如 data/list/items/result）会优先使用该数组。</div>
+    </section>
 
     <section class="card">
       <div class="head">
@@ -308,8 +320,8 @@
     let markdownText = "";
     let pdfJsReadyPromise = null;
 
-    <a href="./HelloKitty/index.html">HelloKitty</a>
-
+    const PDF_JS_CDN = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js";
+    const PDF_JS_WORKER_CDN = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
 
     function setMessage(text, isError = false) {
       msgEl.textContent = text;
@@ -397,12 +409,60 @@
         return;
       }
 
-    <br>
+      const table = document.createElement("table");
+      const thead = document.createElement("thead");
+      const headTr = document.createElement("tr");
+      columns.forEach((col) => {
+        const th = document.createElement("th");
+        th.textContent = col;
+        headTr.appendChild(th);
+      });
+      thead.appendChild(headTr);
 
-    <a href="./online-tools/index.html">在线工具（JSON转表格 + PDF转Markdown）</a>
+      const tbody = document.createElement("tbody");
+      rows.forEach((row) => {
+        const tr = document.createElement("tr");
+        columns.forEach((col) => {
+          const td = document.createElement("td");
+          td.textContent = formatValue(row[col]);
+          tr.appendChild(td);
+        });
+        tbody.appendChild(tr);
+      });
 
-    </body>
-    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+      table.appendChild(thead);
+      table.appendChild(tbody);
+      tableBox.innerHTML = "";
+      tableBox.appendChild(table);
+      tableMeta.textContent = `${rows.length} 行 / ${columns.length} 列`;
+    }
+
+    function parseJsonAndRender() {
+      const text = jsonInput.value.trim();
+      if (!text) {
+        rows = [];
+        columns = [];
+        renderTable();
+        statusEl.textContent = "未解析";
+        setMessage("请输入 JSON");
+        return;
+      }
+      try {
+        const parsed = JSON.parse(text);
+        const picked = pickRows(parsed);
+        rows = normalizeRows(picked);
+        columns = buildColumns(rows);
+        renderTable();
+        statusEl.textContent = "解析成功";
+        setMessage("解析完成，可复制或下载表格");
+      } catch (err) {
+        rows = [];
+        columns = [];
+        renderTable();
+        statusEl.textContent = "解析失败";
+        setMessage(`JSON 解析失败：${err.message}`, true);
+      }
+    }
 
     function toTsv() {
       if (!rows.length || !columns.length) return "";
